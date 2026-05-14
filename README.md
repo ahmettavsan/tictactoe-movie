@@ -1,36 +1,79 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Movie Tac Toe
 
-## Getting Started
+Football Tic Tac Toe için film/dizi versiyonu. 4×4 ızgara, iki takım, satır+sütun yapımlarının kesişiminde rol almış oyuncuyu bul, en çok hücreyi alan kazansın.
 
-First, run the development server:
+Mobile-first, web app (kurulum gerektirmez, tarayıcıdan açılır).
+
+## Stack
+
+- Next.js 16 (App Router) + React 19 + TypeScript
+- Tailwind v4 + Radix primitives + lucide-react
+- Zustand (game state, platform-agnostic — online multiplayer'a açık)
+- TMDB API (server-side Route Handlers; token client'a sızmaz)
+- Bebas Neue + Geist (next/font/google)
+
+## Çalıştır
 
 ```bash
-npm run dev
-# or
-yarn dev
-# or
+pnpm install
+cp .env.local.example .env.local
+# .env.local içine TMDB v4 Bearer token (read access) yapıştır
 pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Aç: http://localhost:3000
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+## TMDB Token
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+https://www.themoviedb.org/settings/api → "API Read Access Token" kopyala → `.env.local`'e yaz:
 
-## Learn More
+```
+TMDB_API_KEY="eyJ..."
+```
 
-To learn more about Next.js, take a look at the following resources:
+## Oyun
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+- **Setup:** İki takım ismi, mod (film / dizi / karışık), zorluk (kolay / orta / zor) seç.
+- **Maç:** Boş hücreye dokun → bottom sheet açılır → oyuncu adı yaz (autocomplete) → seç → TMDB `combined_credits` ile satır+sütun yapımlarının ikisinde de oynamış mı kontrol → geçerliyse hücre takım renginde dolar, geçersizse sıra senin kalır.
+- **Pas:** Sırayı geç. İki ardışık pas → maç biter.
+- **Kazanma:** 9 hücre dolduğunda veya iki pas sonrası en çok hücreyi alan kazanır.
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+## Yapı
 
-## Deploy on Vercel
+```
+src/
+  app/
+    api/
+      productions/random/   # 6 rastgele yapım (mod+zorluk filtreli)
+      person/search/        # autocomplete proxy
+      validate/             # combined_credits intersection
+    layout.tsx              # font + ambient blob layer
+    page.tsx                # status → screen router
+  components/
+    setup/SetupScreen.tsx
+    game/{GameBoard,HeaderTile,Cell,Scoreboard,CellInputModal,ResultScreen}.tsx
+    ui/{button,input,sheet,radio-group,badge,skeleton}.tsx
+  lib/
+    tmdb.ts                 # server-only fetch wrapper
+    difficulty.ts           # popularity band → page range
+    utils.ts                # cn() + tmdbImage()
+  store/
+    gameStore.ts            # Zustand: actions + selectors
+  types/{game,tmdb}.ts
+```
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+## Scripts
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+```bash
+pnpm dev          # dev server (Turbopack)
+pnpm build        # production build
+pnpm start        # production server
+pnpm lint         # eslint
+```
+
+## Roadmap
+
+- [ ] Online multiplayer (oda kodu, Supabase Realtime veya Socket.IO)
+- [ ] Tur süresi opsiyonel timer
+- [ ] Geçmiş maç istatistikleri
+- [ ] Daha çok dil (TMDB `language` parametresi)

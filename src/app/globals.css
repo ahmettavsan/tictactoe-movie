@@ -1,26 +1,321 @@
 @import "tailwindcss";
 
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  --background: #06070b;
+  --background-end: #0a0a0f;
+  --foreground: #f4f4f5;
+  --foreground-dim: #a1a1aa;
+  --foreground-muted: #71717a;
+
+  --card: rgba(255, 255, 255, 0.04);
+  --card-elevated: rgba(255, 255, 255, 0.06);
+  --card-foreground: #f4f4f5;
+
+  --border: rgba(255, 255, 255, 0.08);
+  --border-strong: rgba(255, 255, 255, 0.14);
+  --input: rgba(255, 255, 255, 0.04);
+  --ring: #6366f1;
+
+  --primary: #6366f1;
+  --primary-soft: rgba(99, 102, 241, 0.14);
+  --primary-glow: rgba(99, 102, 241, 0.35);
+  --primary-foreground: #ffffff;
+
+  --team-a: #f43f5e;
+  --team-a-soft: rgba(244, 63, 94, 0.12);
+  --team-a-glow: rgba(244, 63, 94, 0.35);
+
+  --team-b: #fbbf24;
+  --team-b-soft: rgba(251, 191, 36, 0.12);
+  --team-b-glow: rgba(251, 191, 36, 0.35);
+
+  --destructive: #ef4444;
+  --destructive-soft: rgba(239, 68, 68, 0.12);
+  --destructive-foreground: #ffffff;
+
+  --success: #10b981;
+
+  --radius: 0.875rem;
+  --radius-sm: 0.5rem;
+  --radius-lg: 1.25rem;
+
+  --ease-out-quart: cubic-bezier(0.16, 1, 0.3, 1);
+  --ease-in-out-quart: cubic-bezier(0.76, 0, 0.24, 1);
 }
 
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
+  --color-foreground-dim: var(--foreground-dim);
+  --color-foreground-muted: var(--foreground-muted);
+  --color-card: var(--card);
+  --color-card-elevated: var(--card-elevated);
+  --color-card-foreground: var(--card-foreground);
+  --color-border: var(--border);
+  --color-border-strong: var(--border-strong);
+  --color-input: var(--input);
+  --color-ring: var(--ring);
+  --color-primary: var(--primary);
+  --color-primary-soft: var(--primary-soft);
+  --color-primary-glow: var(--primary-glow);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-team-a: var(--team-a);
+  --color-team-a-soft: var(--team-a-soft);
+  --color-team-a-glow: var(--team-a-glow);
+  --color-team-b: var(--team-b);
+  --color-team-b-soft: var(--team-b-soft);
+  --color-team-b-glow: var(--team-b-glow);
+  --color-destructive: var(--destructive);
+  --color-destructive-soft: var(--destructive-soft);
+  --color-destructive-foreground: var(--destructive-foreground);
+  --color-success: var(--success);
   --font-sans: var(--font-geist-sans);
   --font-mono: var(--font-geist-mono);
+  --font-display: var(--font-bebas), var(--font-geist-sans), system-ui, sans-serif;
+  --radius: var(--radius);
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+html,
+body {
+  height: 100%;
 }
 
 body {
-  background: var(--background);
+  background:
+    radial-gradient(60% 60% at 80% 0%, rgba(244, 63, 94, 0.08) 0%, transparent 60%),
+    radial-gradient(50% 50% at 20% 100%, rgba(251, 191, 36, 0.06) 0%, transparent 55%),
+    radial-gradient(80% 80% at 50% 50%, rgba(99, 102, 241, 0.05) 0%, transparent 60%),
+    linear-gradient(180deg, var(--background) 0%, var(--background-end) 100%);
+  background-attachment: fixed;
   color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  font-family: var(--font-sans), system-ui, sans-serif;
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+  letter-spacing: -0.005em;
+}
+
+* {
+  border-color: var(--border);
+}
+
+button {
+  cursor: pointer;
+}
+
+button:disabled {
+  cursor: not-allowed;
+}
+
+.font-display {
+  font-family: var(--font-display);
+  letter-spacing: 0.04em;
+}
+
+.tabular-numbers {
+  font-variant-numeric: tabular-nums;
+}
+
+/* ---------- Glass surface helpers ---------- */
+
+.glass {
+  background: var(--card);
+  backdrop-filter: blur(12px) saturate(140%);
+  -webkit-backdrop-filter: blur(12px) saturate(140%);
+  border: 1px solid var(--border);
+}
+
+.glass-strong {
+  background: var(--card-elevated);
+  backdrop-filter: blur(18px) saturate(160%);
+  -webkit-backdrop-filter: blur(18px) saturate(160%);
+  border: 1px solid var(--border-strong);
+}
+
+/* ---------- Keyframes ---------- */
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes slideUp {
+  from { transform: translateY(8px); opacity: 0; }
+  to { transform: translateY(0); opacity: 1; }
+}
+
+@keyframes scaleIn {
+  from { transform: scale(0.95); opacity: 0; }
+  to { transform: scale(1); opacity: 1; }
+}
+
+@keyframes sheetIn {
+  from { transform: translateY(100%); }
+  to { transform: translateY(0); }
+}
+
+@keyframes claimPop {
+  0% {
+    transform: scale(0.6);
+    opacity: 0;
+  }
+  60% {
+    transform: scale(1.06);
+    opacity: 1;
+  }
+  100% {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+
+@keyframes activeGlowA {
+  0%, 100% {
+    box-shadow: 0 0 0 0 rgba(244, 63, 94, 0);
+  }
+  50% {
+    box-shadow: 0 0 0 6px rgba(244, 63, 94, 0.18);
+  }
+}
+
+@keyframes activeGlowB {
+  0%, 100% {
+    box-shadow: 0 0 0 0 rgba(251, 191, 36, 0);
+  }
+  50% {
+    box-shadow: 0 0 0 6px rgba(251, 191, 36, 0.18);
+  }
+}
+
+@keyframes blobFloatA {
+  0%, 100% { transform: translate(0, 0) scale(1); }
+  50% { transform: translate(40px, -30px) scale(1.06); }
+}
+
+@keyframes blobFloatB {
+  0%, 100% { transform: translate(0, 0) scale(1); }
+  50% { transform: translate(-30px, 30px) scale(0.95); }
+}
+
+@keyframes risingCrown {
+  0% { transform: translateY(12px) scale(0.85); opacity: 0; }
+  60% { transform: translateY(-4px) scale(1.05); opacity: 1; }
+  100% { transform: translateY(0) scale(1); opacity: 1; }
+}
+
+@keyframes shimmerRow {
+  0% { background-position: -200% 0; }
+  100% { background-position: 200% 0; }
+}
+
+@keyframes confettiPulse {
+  0%, 100% { transform: translateY(0) scale(1); opacity: 0.6; }
+  50% { transform: translateY(-6px) scale(1.15); opacity: 1; }
+}
+
+/* ---------- Animation utilities ---------- */
+
+.anim-fade-in {
+  animation: fadeIn 200ms var(--ease-out-quart) both;
+}
+
+.anim-slide-up {
+  animation: slideUp 280ms var(--ease-out-quart) both;
+}
+
+.anim-scale-in {
+  animation: scaleIn 240ms var(--ease-out-quart) both;
+}
+
+.anim-claim {
+  animation: claimPop 360ms var(--ease-out-quart) both;
+}
+
+.anim-rising-crown {
+  animation: risingCrown 600ms var(--ease-out-quart) both;
+}
+
+.anim-confetti {
+  animation: confettiPulse 1.8s ease-in-out infinite;
+}
+
+.active-glow-a {
+  animation: activeGlowA 1.9s ease-in-out infinite;
+}
+
+.active-glow-b {
+  animation: activeGlowB 1.9s ease-in-out infinite;
+}
+
+[data-state="open"][data-radix-dialog-overlay] {
+  animation: fadeIn 180ms var(--ease-out-quart);
+}
+
+.sheet-content {
+  animation: sheetIn 320ms var(--ease-out-quart);
+}
+
+/* ---------- Stagger helper ---------- */
+.stagger > *:nth-child(1) { animation-delay: 0ms; }
+.stagger > *:nth-child(2) { animation-delay: 40ms; }
+.stagger > *:nth-child(3) { animation-delay: 80ms; }
+.stagger > *:nth-child(4) { animation-delay: 120ms; }
+.stagger > *:nth-child(5) { animation-delay: 160ms; }
+.stagger > *:nth-child(6) { animation-delay: 200ms; }
+.stagger > *:nth-child(7) { animation-delay: 240ms; }
+.stagger > *:nth-child(8) { animation-delay: 280ms; }
+
+/* ---------- Press scale (additive on tappables) ---------- */
+.press-scale {
+  transition: transform 180ms var(--ease-out-quart);
+}
+.press-scale:active:not(:disabled) {
+  transform: scale(0.97);
+}
+
+/* ---------- Ambient floating blobs ---------- */
+.ambient-blobs {
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: 0;
+  overflow: hidden;
+}
+.ambient-blobs::before,
+.ambient-blobs::after {
+  content: "";
+  position: absolute;
+  width: 60vmin;
+  height: 60vmin;
+  border-radius: 9999px;
+  filter: blur(80px);
+  opacity: 0.45;
+  will-change: transform;
+}
+.ambient-blobs::before {
+  top: -10vmin;
+  right: -10vmin;
+  background: radial-gradient(circle, rgba(244, 63, 94, 0.55), transparent 70%);
+  animation: blobFloatA 18s ease-in-out infinite;
+}
+.ambient-blobs::after {
+  bottom: -10vmin;
+  left: -10vmin;
+  background: radial-gradient(circle, rgba(251, 191, 36, 0.45), transparent 70%);
+  animation: blobFloatB 22s ease-in-out infinite;
+}
+
+/* ---------- Reduced motion ---------- */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+  .ambient-blobs::before,
+  .ambient-blobs::after {
+    animation: none !important;
+  }
 }
