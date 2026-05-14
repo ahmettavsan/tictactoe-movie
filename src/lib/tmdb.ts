@@ -12,7 +12,7 @@ export async function tmdbFetch<T>(
   params: Record<string, string | number | boolean | undefined> = {},
   opts: TmdbFetchOpts = {}
 ): Promise<T> {
-  const token = process.env.TMDB_API_KEY;
+  const token = process.env.TMDB_API_KEY?.trim().replace(/^["']|["']$/g, "");
   if (!token) {
     throw new Error("TMDB_API_KEY is not configured in env");
   }
