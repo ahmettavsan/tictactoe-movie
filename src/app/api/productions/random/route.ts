@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { tmdbFetch } from "@/lib/tmdb";
 import { randomPage, type Difficulty, type MediaMode } from "@/lib/difficulty";
 import { fetchTopCastIds } from "@/lib/cast";
+import { buildAnchorSeed } from "@/lib/anchors";
 import type {
   DiscoverMovieRaw,
   DiscoverTvRaw,
@@ -249,6 +250,20 @@ export async function GET(request: Request) {
   const difficulty = isDifficulty(rawDiff) ? rawDiff : "easy";
 
   try {
+    // ANCHOR-DRIVEN seed: pick 6 productions all sharing one actor → every
+    // cell guaranteed solvable (9/9). The anchor is a popular actor (curated
+    // for Turkish, /person/popular for foreign) and the 6 productions are
+    // sampled from their LEAD filmography (order < topN for movies, sufficient
+    // episode count for tv) — so the answer-must-be-a-lead rule still holds.
+    const anchor = await buildAnchorSeed(mode, difficulty);
+    if (anchor) {
+      return NextResponse.json({
+        productions: [...anchor.rows, ...anchor.cols],
+        solvableCells: 9,
+      });
+    }
+
+    // FALLBACK: discover-driven greedy (no 9/9 guarantee, but variety)
     let pool: Production[] = [];
     if (mode === "movie") {
       pool = await fetchMovies(difficulty);

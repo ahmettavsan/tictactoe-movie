@@ -53,15 +53,22 @@ export type PersonSearchRaw = {
   }[];
 };
 
+export type CombinedCreditsCastItem = {
+  id: number; // production id
+  media_type: "movie" | "tv";
+  title?: string; // movie
+  name?: string; // tv
+  character?: string;
+  poster_path?: string | null;
+  release_date?: string; // movie
+  first_air_date?: string; // tv
+  order?: number; // movie billing position (0 = top)
+  episode_count?: number; // tv: number of episodes this person appeared in
+};
+
 export type CombinedCreditsRaw = {
   id: number;
-  cast: {
-    id: number; // production id
-    media_type: "movie" | "tv";
-    title?: string;
-    name?: string;
-    character?: string;
-  }[];
+  cast: CombinedCreditsCastItem[];
   crew: unknown[];
 };
 
