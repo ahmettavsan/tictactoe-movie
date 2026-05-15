@@ -10,7 +10,7 @@ import type {
 export const dynamic = "force-dynamic";
 
 function isMode(v: string | null): v is MediaMode {
-  return v === "movie" || v === "tv" || v === "mixed";
+  return v === "movie" || v === "tv" || v === "mixed" || v === "turkish";
 }
 
 function isDifficulty(v: string | null): v is Difficulty {
@@ -26,12 +26,15 @@ function shuffle<T>(arr: T[]): T[] {
   return a;
 }
 
-async function fetchMovies(difficulty: Difficulty): Promise<Production[]> {
+type FetchOpts = { originCountry?: string; language?: string };
+
+async function fetchMovies(difficulty: Difficulty, opts: FetchOpts = {}): Promise<Production[]> {
   const page = randomPage(difficulty);
   const data = await tmdbFetch<DiscoverMovieRaw>("/discover/movie", {
     sort_by: "popularity.desc",
     include_adult: false,
-    language: "en-US",
+    language: opts.language ?? "en-US",
+    with_origin_country: opts.originCountry,
     page,
   });
   return data.results
@@ -45,12 +48,13 @@ async function fetchMovies(difficulty: Difficulty): Promise<Production[]> {
     }));
 }
 
-async function fetchTv(difficulty: Difficulty): Promise<Production[]> {
+async function fetchTv(difficulty: Difficulty, opts: FetchOpts = {}): Promise<Production[]> {
   const page = randomPage(difficulty);
   const data = await tmdbFetch<DiscoverTvRaw>("/discover/tv", {
     sort_by: "popularity.desc",
     include_adult: false,
-    language: "en-US",
+    language: opts.language ?? "en-US",
+    with_origin_country: opts.originCountry,
     page,
   });
   return data.results
@@ -77,12 +81,18 @@ export async function GET(request: Request) {
       pool = await fetchMovies(difficulty);
     } else if (mode === "tv") {
       pool = await fetchTv(difficulty);
+    } else if (mode === "turkish") {
+      const trOpts: FetchOpts = { originCountry: "TR", language: "tr-TR" };
+      const [m, t] = await Promise.all([
+        fetchMovies(difficulty, trOpts),
+        fetchTv(difficulty, trOpts),
+      ]);
+      pool = shuffle([...m, ...t]);
     } else {
       const [m, t] = await Promise.all([
         fetchMovies(difficulty),
         fetchTv(difficulty),
       ]);
-      // Interleave-shuffle so we mostly get a mix
       pool = shuffle([...m, ...t]);
     }
 

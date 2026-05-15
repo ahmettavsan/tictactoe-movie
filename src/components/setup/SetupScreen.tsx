@@ -140,6 +140,8 @@ export function SetupScreen() {
                   ? "Sadece sinema filmleri"
                   : m === "tv"
                   ? "Sadece TV dizileri"
+                  : m === "turkish"
+                  ? "Sadece Türk yapımları (film + dizi)"
                   : "Film + dizi, daha geniş havuz"
               }
             />

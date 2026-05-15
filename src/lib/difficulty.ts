@@ -1,5 +1,5 @@
 export type Difficulty = "easy" | "medium" | "hard";
-export type MediaMode = "movie" | "tv" | "mixed";
+export type MediaMode = "movie" | "tv" | "mixed" | "turkish";
 
 export const DIFFICULTY_LABELS: Record<Difficulty, string> = {
   easy: "Kolay",
@@ -11,6 +11,7 @@ export const MODE_LABELS: Record<MediaMode, string> = {
   movie: "Sadece film",
   tv: "Sadece dizi",
   mixed: "Karışık",
+  turkish: "Türk yapımları",
 };
 
 // TMDB popularity-sorted discover. Lower page = more popular.
