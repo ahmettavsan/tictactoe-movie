@@ -166,10 +166,10 @@ export function SetupScreen() {
               label={DIFFICULTY_LABELS[d]}
               hint={
                 d === "easy"
-                  ? "Top 60 popüler yapım"
+                  ? "Pop yapımlar + sadece başroller geçerli"
                   : d === "medium"
-                  ? "Top 200 — biraz hatırlamak gerek"
-                  : "Top 1000 — gerçek sinefil havası"
+                  ? "Daha geniş havuz + ana & tekrarlayan kadro"
+                  : "Tüm cast — yan rol oyuncuları da geçer"
               }
             />
           ))}

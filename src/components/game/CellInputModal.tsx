@@ -20,7 +20,7 @@ type Props = {
 };
 
 export function CellInputModal({ open, onOpenChange, row, col }: Props) {
-  const { rows, cols, teams, currentTeam, claimCell } = useGameStore();
+  const { rows, cols, teams, currentTeam, claimCell, difficulty } = useGameStore();
   const rowProd = rows[row] as Production | undefined;
   const colProd = cols[col] as Production | undefined;
 
@@ -83,6 +83,7 @@ export function CellInputModal({ open, onOpenChange, row, col }: Props) {
           personId: person.id,
           prodA: { id: rowProd.id, type: rowProd.type },
           prodB: { id: colProd.id, type: colProd.type },
+          difficulty,
         }),
       });
       const data = await res.json();
@@ -96,6 +97,10 @@ export function CellInputModal({ open, onOpenChange, row, col }: Props) {
           description: `${teams[currentTeam].name} hücreyi aldı`,
         });
         onOpenChange(false);
+      } else if (data.inFullCast) {
+        setError(
+          `${person.name} iki yapımda da var ama Kolay/Orta modda sadece başroller geçerli. Daha bilinen bir oyuncu dene veya zorluğu artır.`
+        );
       } else {
         setError(`${person.name}, bu iki yapımda da rol almamış.`);
       }

@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { tmdbFetch } from "@/lib/tmdb";
 import { randomPage, type Difficulty, type MediaMode } from "@/lib/difficulty";
+import { fetchTopCastIds } from "@/lib/cast";
 import type {
   DiscoverMovieRaw,
   DiscoverTvRaw,
@@ -88,22 +89,6 @@ async function fetchTv(difficulty: Difficulty, opts: FetchOpts = {}): Promise<Pr
 
 // ---- Cast intersection helpers ---------------------------------------------
 
-type CastResp = { cast: { id: number }[] };
-
-async function fetchCastIds(p: Production): Promise<Set<number>> {
-  // For TV use aggregate_credits to capture multi-season casts (Turkish dizis
-  // rotate cast a lot across seasons).
-  const path =
-    p.type === "tv" ? `/tv/${p.id}/aggregate_credits` : `/movie/${p.id}/credits`;
-  try {
-    const data = await tmdbFetch<CastResp>(path, { language: "en-US" }, { revalidate: 86400 });
-    // Top 80 cast members; aggregate_credits already sorted by total_episode_count.
-    return new Set(data.cast.slice(0, 80).map((c) => c.id));
-  } catch {
-    return new Set();
-  }
-}
-
 function scoreSelection(rowCasts: Set<number>[], colCasts: Set<number>[]): number {
   let solvable = 0;
   for (const rc of rowCasts) {
@@ -121,17 +106,29 @@ function scoreSelection(rowCasts: Set<number>[], colCasts: Set<number>[]): numbe
   return solvable;
 }
 
-function makeCastGetter() {
+function makeCastGetter(seedDifficulty: Difficulty) {
+  // Seed-time cast depth is intentionally looser than validate-time so the
+  // board has enough overlap to be playable. Validate route still enforces
+  // the user's chosen difficulty (top 8 / 25 / 80) when checking an answer.
   const castCache = new Map<string, Promise<Set<number>>>();
   return (p: Production) => {
-    const k = `${p.type}:${p.id}`;
+    const k = `${p.type}:${p.id}:${seedDifficulty}`;
     let promise = castCache.get(k);
     if (!promise) {
-      promise = fetchCastIds(p);
+      promise = fetchTopCastIds(p, seedDifficulty);
       castCache.set(k, promise);
     }
     return promise;
   };
+}
+
+// Seed validator uses a looser tier than the user's difficulty so easy/medium
+// boards still have enough cast overlap to be playable. Validate route stays
+// strict to the user's choice — some "valid in full cast" answers will fail
+// validation in easy/medium (inFullCast hint shown to user in UI).
+function seedTier(difficulty: Difficulty): Difficulty {
+  if (difficulty === "easy") return "medium";
+  return difficulty;
 }
 
 // Best 3-row / 3-col split out of a chosen 6 productions.
@@ -289,11 +286,14 @@ export async function GET(request: Request) {
     }
 
     // Pre-validate that the selected 6 productions form a solvable board.
-    // Greedy cast-aware selection; multiple runs with different seeds, keep
-    // the highest-scoring split. Cast cache makes repeats nearly free.
-    const getCast = makeCastGetter();
+    // Seed-time uses a relaxed tier (medium for easy) so the board has enough
+    // overlap to be playable; validate route still enforces the chosen
+    // difficulty strictly when accepting an answer.
+    const getCast = makeCastGetter(seedTier(difficulty));
     const candidatesPerSlot = mode === "turkish" ? 14 : 12;
-    const greedyRuns = 4;
+    // Easy mode benefits from extra greedy runs since lead-only intersection
+    // is rare in the foreign popular pool (Hollywood casts cluster by franchise).
+    const greedyRuns = difficulty === "easy" ? 8 : 4;
     const targetScore = mode === "turkish" ? 6 : 8;
 
     let seed: { rows: Production[]; cols: Production[]; score: number } | null = null;
