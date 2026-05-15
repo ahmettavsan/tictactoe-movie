@@ -99,7 +99,7 @@ export function CellInputModal({ open, onOpenChange, row, col }: Props) {
         onOpenChange(false);
       } else if (data.inFullCast) {
         setError(
-          `${person.name} iki yapımda da var ama Kolay/Orta modda sadece başroller geçerli. Daha bilinen bir oyuncu dene veya zorluğu artır.`
+          `${person.name} iki yapımda da var ama bu zorlukta yan/konuk roller geçmiyor. Daha tanınan birini dene veya zorluğu artır.`
         );
       } else {
         setError(`${person.name}, bu iki yapımda da rol almamış.`);

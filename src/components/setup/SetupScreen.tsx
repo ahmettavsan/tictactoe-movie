@@ -166,10 +166,10 @@ export function SetupScreen() {
               label={DIFFICULTY_LABELS[d]}
               hint={
                 d === "easy"
-                  ? "Pop yapımlar + sadece başroller geçerli"
+                  ? "Tanınan oyuncular — başrol + önemli yan rol"
                   : d === "medium"
-                  ? "Daha geniş havuz + ana & tekrarlayan kadro"
-                  : "Tüm cast — yan rol oyuncuları da geçer"
+                  ? "Geniş kadro — tüm ana & tekrarlayan oyuncular"
+                  : "Tüm cast — guest / minor roller da geçer"
               }
             />
           ))}

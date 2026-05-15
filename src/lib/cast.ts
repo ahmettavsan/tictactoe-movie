@@ -8,14 +8,17 @@ type CastResp = {
 };
 
 /**
- * Cast depth per difficulty.
- * - easy:   top 8 — only billed leads count
- * - medium: top 25 — leads + recurring
- * - hard:   top 80 — full known cast
+ * Cast depth per difficulty. Tuned so well-known actors who weren't the
+ * #1 lead in a show (e.g. Tuba Büyüküstün at pos 12 in Sefirin Kızı with
+ * 35 episodes) still validate on easy.
+ *
+ * - easy:   top 15 — leads + prominent recurring (excludes guest spots)
+ * - medium: top 35 — full main + recurring cast
+ * - hard:   top 80 — all known cast incl. minor/guest roles
  */
 export const CAST_TOP_N: Record<Difficulty, number> = {
-  easy: 8,
-  medium: 25,
+  easy: 15,
+  medium: 35,
   hard: 80,
 };
 
